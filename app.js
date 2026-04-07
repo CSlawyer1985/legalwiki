@@ -19,10 +19,11 @@
   let searchIndex = null;
 
   function loadSearchIndex() {
-    var path = window.location.pathname.endsWith('/index.html') ||
-               !window.location.pathname.includes('/')
-               ? 'search-index.json'
-               : '../search-index.json';
+    var pathname = window.location.pathname;
+    // 根据当前页面所在目录决定 search-index.json 的相对路径
+    var path = (pathname.indexOf('/article/') >= 0)
+               ? '../search-index.json'
+               : 'search-index.json';
 
     fetch(path)
       .then(function(r) { return r.json(); })
@@ -112,10 +113,14 @@
 
   function goToResult(path) {
     // path 来自 search-index.json 的 "p" 字段，如 "article/股东出资责任.html"
-    // path 是从根目录计算的相对路径，需要加上当前目录的前缀
+    // path 是从根目录计算的相对路径，如果当前已在 article/ 下则直接用 path，否则要加上前缀
     var pathname = window.location.pathname;
-    var dir = pathname.substring(0, pathname.lastIndexOf('/') + 1);
-    window.location.href = dir + path;
+    if (pathname.indexOf('/article/') >= 0) {
+      window.location.href = path;
+    } else {
+      var dir = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+      window.location.href = dir + path;
+    }
   }
 
   // 暴露给全局（HTML onclick 需要）
