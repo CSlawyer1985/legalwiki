@@ -1,0 +1,884 @@
+/*
+ * style.css — 法律概念 Wiki 维基百科风格样式表
+ * 基于 zh.wikipedia.org 视觉风格，适配法律内容
+ */
+
+/* ──────────────────────────────────────
+   0. CSS Variables
+   ────────────────────────────────────── */
+
+:root {
+  /* 维基百科标准色 */
+  --link: #3366cc;
+  --link-visited: #795cb2;
+  --link-active: #4444bb;
+
+  /* 背景色 */
+  --bg: #f6f6f6;
+  --content-bg: #ffffff;
+  --search-bg: #ffffff;
+
+  /* 边框 / 文字 */
+  --border: #a2a9b1;
+  --border-light: #c8ccd0;
+  --text: #202122;
+  --text-secondary: #72777d;
+
+  /* 导航侧边栏 */
+  --sidebar-bg: #f6f6f6;
+  --sidebar-width: 240px;
+  --sidebar-border: #e1e4e8;
+
+  /* 导航顶部 */
+  --nav-bg: #ffffff;
+  --nav-border: #a2a9b1;
+
+  /* 法律色彩 */
+  --law-effective: #16a34a;
+  --law-repealed: #dc2626;
+  --law-amended: #d97706;
+  --law-quote-bg: #fffbeb;
+  --law-quote-border: #d97706;
+
+  /* 引用块 */
+  --blockquote-bg: #f8f9fa;
+  --blockquote-border: #a2a9b1;
+}
+
+/* ──────────────────────────────────────
+   1. 基础重置
+   ────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 14.5px; scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  line-height: 1.85;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+a:visited { color: var(--link-visited); }
+
+/* ──────────────────────────────────────
+   2. 顶部导航条
+   ────────────────────────────────────── */
+
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+  padding: 0 16px;
+  height: 44px;
+}
+
+.nav-logo {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-right: 32px;
+}
+.nav-logo:hover { text-decoration: none; }
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 16px;
+}
+
+.nav-links a {
+  color: var(--link);
+  font-size: 14px;
+  padding: 4px 0;
+}
+.nav-links a.active {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom: 2px solid var(--text);
+}
+.nav-links a.active:hover { text-decoration: none; }
+
+/* ──────────────────────────────────────
+   3. 左侧栏 (Sidebar)
+   ────────────────────────────────────── */
+
+.sidebar {
+  position: fixed;
+  top: 44px;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  overflow-y: auto;
+  z-index: 90;
+  padding: 8px;
+}
+
+.sidebar-header {
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--sidebar-border);
+  margin-bottom: 8px;
+}
+
+.sidebar-logo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sidebar-logo:hover { text-decoration: none; }
+
+.sidebar-logo-icon { font-size: 18px; }
+
+.sidebar-search {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.sidebar-search input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 2px;
+  font-size: 13px;
+  outline: none;
+}
+.sidebar-search input:focus {
+  border-color: var(--link);
+  box-shadow: 0 0 0 1px var(--link);
+}
+
+.sidebar-domain {
+  cursor: pointer;
+  padding: 4px 4px;
+  border-radius: 2px;
+  user-select: none;
+}
+.sidebar-domain:hover { background: #e8e8e8; }
+
+.sidebar-domain-name { font-weight: 600; font-size: 13px; }
+.sidebar-count { font-size: 11px; color: var(--text-secondary); }
+
+.sidebar-articles {
+  list-style: none;
+  margin: 0 0 4px 12px;
+  font-size: 12px;
+}
+.sidebar-articles li {
+  padding: 1px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.sidebar-articles a {
+  color: var(--link);
+  display: block;
+  padding: 3px 8px;
+}
+.sidebar-articles a:hover { text-decoration: none; background: #eef; }
+
+/* ──────────────────────────────────────
+   4. 搜索结果下拉
+   ────────────────────────────────────── */
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--content-bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: none;
+  z-index: 200;
+}
+.search-results.active { display: block; }
+
+.search-result-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+.search-result-item:hover { background: #f0f4ff; }
+.search-result-item .sr-title {
+  font-weight: 600;
+  color: var(--text);
+}
+.search-result-item .sr-domain {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ──────────────────────────────────────
+   5. 面包屑导航
+   ────────────────────────────────────── */
+
+.breadcrumb {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.breadcrumb a { color: var(--link); }
+
+/* ──────────────────────────────────────
+   6. 主内容区
+   ────────────────────────────────────── */
+
+.main-wrapper {
+  margin-left: var(--sidebar-width);
+  padding: 12px 16px;
+  min-height: calc(100vh - 44px);
+}
+
+.main {
+  max-width: 900px;
+  background: var(--content-bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 20px 24px 24px;
+  margin-bottom: 24px;
+}
+
+/* ──────────────────────────────────────
+   7. 文章页
+   ────────────────────────────────────── */
+
+.article-title {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.domain-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 2px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.meta-item { }
+
+.benchmark-quote {
+  background: var(--law-quote-bg);
+  border-left: 4px solid var(--law-quote-border);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* 关联概念标签 */
+.related-concepts { margin: 12px 0; }
+.related-concepts h3 {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+}
+.related-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.related-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #e8eaf6;
+  border: 1px solid #c5cae9;
+  border-radius: 14px;
+  font-size: 12px;
+  color: var(--link);
+}
+.related-tag:hover {
+  background: #c5cae9;
+  text-decoration: none;
+}
+
+/* 文章目录 TOC */
+.article-toc-toggle {
+  display: none;
+  cursor: pointer;
+  padding: 8px;
+  background: #f0f0f0;
+  border: 1px solid var(--border-light);
+  border-radius: 2px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.article-toc {
+  /* float layout kept for compatibility — gap handled via article-content overflow fix */
+  float: right;
+  width: 200px;
+  margin: 0 0 16px 24px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 12px 16px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.article-toc h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.article-toc ul {
+  list-style: none;
+  padding: 0;
+}
+
+.article-toc li {
+  padding: 3px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.article-toc a {
+  color: var(--link);
+}
+
+/* 正文区域 */
+.article-content {
+  /* removed overflow: hidden — it created BFC that avoids floated TOC → blank gap */
+}
+
+/* 正文中的 wikilink */
+.article-content a.wikilink {
+  color: var(--link);
+  text-decoration: underline;
+}
+.article-content a.wikilink:hover { color: var(--link-active); }
+.article-content .broken-wikilink {
+  color: red;
+}
+
+/* 正文中的 h2 / h3 */
+.article-content h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 28px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text);
+}
+
+.article-content h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 20px 0 8px;
+  color: var(--text);
+}
+
+.article-content p {
+  margin: 8px 0;
+  line-height: 1.85;
+}
+
+/* 法条引用 (blockquote) */
+.article-content blockquote {
+  background: var(--blockquote-bg);
+  border-left: 4px solid var(--blockquote-border);
+  padding: 10px 16px;
+  margin: 12px 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+/* 正文中的 ul / ol */
+.article-content ul,
+.article-content ol {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+.article-content li {
+  margin: 4px 0;
+  line-height: 1.7;
+}
+
+/* 表格 */
+.article-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  font-size: 13px;
+}
+.article-content table th,
+.article-content table td {
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  text-align: left;
+}
+.article-content table th {
+  background: #eaecf0;
+  font-weight: 600;
+}
+
+/* 底部来源 */
+.sources-info {
+  margin: 20px 0 8px;
+  padding: 10px 16px;
+  background: #f8f9fa;
+  border: 1px solid var(--border-light);
+  border-radius: 2px;
+}
+.sources-count {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* 反向链接 */
+.backlinks {
+  margin: 16px 0;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-top: 1px solid var(--border-light);
+}
+.backlinks h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.backlinks ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.backlinks li { margin: 0; padding: 0; }
+
+/* 上下页导航 */
+.page-nav {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+  font-size: 13px;
+}
+
+/* ──────────────────────────────────────
+   8. 首页
+   ────────────────────────────────────── */
+
+.wiki-header {
+  text-align: center;
+  padding: 28px 0 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.wiki-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 2px;
+}
+
+.wiki-slogan {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* 大搜索框 */
+.wiki-search-home {
+  position: relative;
+  max-width: 560px;
+  margin: 20px auto;
+}
+
+.wiki-search-home input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  font-size: 15px;
+  outline: none;
+  background: var(--content-bg);
+}
+.wiki-search-home input:focus {
+  border-color: var(--link);
+}
+
+/* 统计卡片 */
+.wiki-stats {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  background: var(--content-bg);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 12px 20px;
+  text-align: center;
+  min-width: 160px;
+}
+.stat-box strong {
+  font-size: 22px;
+  color: var(--text);
+}
+.stat-box span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* 维基百科首页两栏布局 */
+.wikipedia-two-columns {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.wp-section {
+  border: 1px solid var(--border-light);
+  background: var(--content-bg);
+  margin-bottom: 12px;
+}
+
+.wp-section-header {
+  background: #e8eaec;
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.wp-section-content {
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.featured-list, .recent-list, .nav-list {
+  list-style: none;
+  padding: 0;
+}
+
+.featured-list li {
+  padding: 3px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.recent-list li {
+  padding: 3px 0;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.recent-list .date {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.nav-list li {
+  padding: 3px 0;
+}
+.nav-list span {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.cite-count {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* 领域卡片网格 */
+.domain-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.domain-card {
+  background: #f8f9fa;
+  border-radius: 2px;
+  padding: 8px;
+  text-align: center;
+  display: block;
+  border: 1px solid #e1e4e8;
+}
+.domain-card:hover {
+  background: #eef;
+  text-decoration: none;
+}
+.domain-card h3 {
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.domain-card-count {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ──────────────────────────────────────
+   9. 领域页
+   ────────────────────────────────────── */
+
+.domain-page { }
+
+.domain-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.domain-count {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+/* ──────────────────────────────────────
+   10. Footer
+   ────────────────────────────────────── */
+
+.wiki-footer {
+  text-align: center;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-light);
+  background: #f0f0f0;
+  margin-left: var(--sidebar-width);
+}
+
+/* ──────────────────────────────────────
+   11. Wikilink (通用)
+   ────────────────────────────────────── */
+
+a.wikilink {
+  color: var(--link);
+}
+span.broken-wikilink {
+  color: #ba0000;
+}
+
+/* ──────────────────────────────────────
+   12. Domain article card on domain pages
+   ────────────────────────────────────── */
+
+.domain-articles-list {
+  column-count: 2;
+  column-gap: 24px;
+}
+
+.domain-article-card {
+  break-inside: avoid;
+  padding: 6px 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.domain-article-title {
+  color: var(--link);
+  font-weight: 600;
+  font-size: 14px;
+}
+.domain-article-title:hover { text-decoration: underline; }
+
+.domain-article-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+/* ──────────────────────────────────────
+   13. 移动端响应式
+   ────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0px;
+  }
+
+  .sidebar {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 44px;
+    bottom: 0;
+    z-index: 500;
+    background: var(--content-bg);
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+    --sidebar-width: 260px;
+  }
+  .sidebar.active {
+    display: block;
+  }
+
+  .main-wrapper,
+  .wiki-footer {
+    margin-left: 0;
+  }
+
+  .wikipedia-two-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .domain-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .domain-articles-list {
+    column-count: 1;
+  }
+
+  .article-toc {
+    display: none;
+  }
+  .article-toc.mobile-active {
+    display: block;
+    float: none;
+    width: 100%;
+    margin: 0 0 16px 0;
+  }
+
+  .article-toc-toggle {
+    display: block;
+  }
+
+  .wiki-title {
+    font-size: 22px;
+  }
+
+  /* mobile hamburger button */
+  .sidebar-trigger {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .domain-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .article-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .wiki-stats {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* ──────────────────────────────────────
+   14. 浏览汇总页
+   ────────────────────────────────────── */
+
+.browse-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.browse-subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.browse-domain-card {
+  background: var(--content-bg);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.browse-domain-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.browse-domain-title {
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.browse-domain-title:hover { text-decoration: underline; }
+
+.browse-domain-count {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.browse-domain-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 13px;
+}
+
+.browse-domain-list li {
+  padding: 3px 0;
+}
+
+.browse-domain-list a {
+  color: var(--link);
+}
+.browse-domain-list a:hover { text-decoration: underline; }
+
+@media (max-width: 1024px) {
+  .browse-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .browse-grid {
+    grid-template-columns: 1fr;
+  }
+}
