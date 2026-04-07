@@ -393,14 +393,8 @@ def article_page(concept, concepts, backlinks, concept_map):
 </div>
 <footer class="wiki-footer">
   <p>法律概念 Wiki &middot; 基于 Karpathy LLM Wiki 方法论 &middot; 由 AI+CSlawyer 构建和维护</p>
-  <p class="visitor-counter" style="font-size:12px;color:#94a3b8;margin-top:6px">
-    <span id="busuanzi_container_site_pv">总访问量 <span id="busuanzi_value_site_pv" class="counter-number">--</span> 次</span>
-    &middot;
-    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv" class="counter-number">--</span> 位访客</span>
-  </p>
 </footer>
 <script src="../app.js"></script>
-<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>"""
     return page_html
@@ -476,14 +470,8 @@ def generate_domain_pages(concepts):
 </div>
 <footer class="wiki-footer">
   <p>法律概念 Wiki &middot; 基于 Karpathy LLM Wiki 方法论 &middot; 由 AI+CSlawyer 构建和维护</p>
-  <p class="visitor-counter" style="font-size:12px;color:#94a3b8;margin-top:6px">
-    <span id="busuanzi_container_site_pv">总访问量 <span id="busuanzi_value_site_pv" class="counter-number">--</span> 次</span>
-    &middot;
-    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv" class="counter-number">--</span> 位访客</span>
-  </p>
 </footer>
 <script src="../app.js"></script>
-<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>"""
         (DOMAIN_DIR / f"{domain}.html").write_text(html, encoding="utf-8")
