@@ -12,6 +12,20 @@
 (function() {
   'use strict';
 
+  function getPageType(pathname) {
+    if (pathname.indexOf('/article/') >= 0) return 'page-article';
+    if (pathname.indexOf('/domain/') >= 0) return 'page-domain';
+    if (pathname.indexOf('/browse') >= 0) return 'page-browse';
+    return 'page-home';
+  }
+
+  function initPageClasses() {
+    if (!document.body) return;
+    document.body.classList.add('js-enhanced', getPageType(window.location.pathname));
+  }
+
+  initPageClasses();
+
   // ─────────────────────────────────────
   // 1. 加载搜索索引
   // ─────────────────────────────────────
@@ -21,7 +35,7 @@
   function loadSearchIndex() {
     var pathname = window.location.pathname;
     // 根据当前页面所在目录决定 search-index.json 的相对路径
-    var path = (pathname.indexOf('/article/') >= 0)
+    var path = (pathname.indexOf('/article/') >= 0 || pathname.indexOf('/domain/') >= 0)
                ? '../search-index.json'
                : 'search-index.json';
 
@@ -89,18 +103,23 @@
     return results.slice(0, 15); // 最多返回 15 条
   }
 
-  function renderResults(results, container) {
+  function renderResults(results, container, activeIndex) {
     if (!container) return;
 
     if (results.length === 0) {
       container.classList.remove('active');
+      container.innerHTML = '';
+      container.dataset.activeIndex = '-1';
       return;
     }
 
     var html = '';
     for (var i = 0; i < results.length; i++) {
       var r = results[i].item;
-      html += '<div class="search-result-item" onclick="goToResult(\'' +
+      html += '<div class="search-result-item' +
+              (i === activeIndex ? ' is-active' : '') +
+              '" data-index="' + i + '" data-path="' + escapeHtml(r.p) +
+              '" onclick="goToResult(\'' +
               r.p.replace(/'/g, "\\'") + '\')">' +
               '<div class="sr-title">' + escapeHtml(r.t) + '</div>' +
               '<div class="sr-domain">' + escapeHtml(r.d) + '</div>' +
@@ -109,6 +128,123 @@
 
     container.innerHTML = html;
     container.classList.add('active');
+    container.dataset.activeIndex = String(activeIndex);
+  }
+
+  function setActiveResult(container, nextIndex) {
+    if (!container || !container.classList.contains('active')) return;
+
+    var items = container.querySelectorAll('.search-result-item');
+    if (items.length === 0) return;
+
+    var normalizedIndex = nextIndex;
+    if (normalizedIndex < 0) normalizedIndex = items.length - 1;
+    if (normalizedIndex >= items.length) normalizedIndex = 0;
+
+    for (var i = 0; i < items.length; i++) {
+      items[i].classList.toggle('is-active', i === normalizedIndex);
+    }
+
+    container.dataset.activeIndex = String(normalizedIndex);
+    items[normalizedIndex].scrollIntoView({ block: 'nearest' });
+  }
+
+  function openActiveResult(container) {
+    if (!container) return false;
+
+    var activeIndex = parseInt(container.dataset.activeIndex || '-1', 10);
+    var activeItem = container.querySelector('.search-result-item.is-active');
+    if (!activeItem && activeIndex >= 0) {
+      activeItem = container.querySelector('.search-result-item[data-index="' + activeIndex + '"]');
+    }
+    if (!activeItem) {
+      activeItem = container.querySelector('.search-result-item');
+    }
+    if (!activeItem) return false;
+
+    var path = activeItem.getAttribute('data-path');
+    if (!path) return false;
+
+    goToResult(path);
+    return true;
+  }
+
+  function performSearch(query, container) {
+    var results = doSearch(query);
+    renderResults(results, container, 0);
+    return results;
+  }
+
+  function initSearchInput(input, container) {
+    if (!input || !container) return;
+
+    var searchTimeout = null;
+
+    input.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      var query = this.value.trim();
+
+      if (!query) {
+        container.classList.remove('active');
+        container.innerHTML = '';
+        container.dataset.activeIndex = '-1';
+        return;
+      }
+
+      searchTimeout = setTimeout(function() {
+        performSearch(query, container);
+      }, 120);
+    });
+
+    input.addEventListener('focus', function() {
+      if (this.value.trim()) {
+        performSearch(this.value.trim(), container);
+      }
+    });
+
+    input.addEventListener('keydown', function(e) {
+      var items = container.querySelectorAll('.search-result-item');
+      var activeIndex = parseInt(container.dataset.activeIndex || '-1', 10);
+      if (isNaN(activeIndex)) activeIndex = -1;
+
+      if (e.key === 'ArrowDown') {
+        if (items.length === 0 && this.value.trim()) {
+          performSearch(this.value.trim(), container);
+          return;
+        }
+        e.preventDefault();
+        setActiveResult(container, activeIndex + 1);
+        return;
+      }
+
+      if (e.key === 'ArrowUp') {
+        if (items.length === 0 && this.value.trim()) {
+          performSearch(this.value.trim(), container);
+          return;
+        }
+        e.preventDefault();
+        setActiveResult(container, activeIndex <= 0 ? items.length - 1 : activeIndex - 1);
+        return;
+      }
+
+      if (e.key === 'Enter') {
+        var query = this.value.trim();
+        if (!query) return;
+
+        e.preventDefault();
+        if (!openActiveResult(container)) {
+          var results = doSearch(query);
+          if (results.length > 0) {
+            goToResult(results[0].item.p);
+          }
+        }
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        container.classList.remove('active');
+      }
+    });
   }
 
   function goToResult(path) {
@@ -149,34 +285,77 @@
 
   var sidebarSearch = document.getElementById('sidebar-search');
   var sidebarResults = document.getElementById('sidebar-results');
-  var sidebarSearchTimeout = null;
+  initSearchInput(sidebarSearch, sidebarResults);
 
-  if (sidebarSearch) {
-    sidebarSearch.addEventListener('input', function() {
-      clearTimeout(sidebarSearchTimeout);
-      var query = this.value.trim();
+  function setCurrentPageState() {
+    var currentPath = window.location.pathname;
+    var currentDomainNode = document.querySelector('.domain-title') ||
+      document.querySelector('.article-meta .domain-tag');
+    var currentDomain = currentDomainNode ? currentDomainNode.textContent.trim() : '';
+    var navLinks = document.querySelectorAll('a[href]');
 
-      if (!query) {
-        if (sidebarResults) sidebarResults.classList.remove('active');
-        return;
+    for (var i = 0; i < navLinks.length; i++) {
+      var link = navLinks[i];
+      var linkUrl = new URL(link.getAttribute('href'), window.location.href);
+      var linkPath = linkUrl.pathname;
+
+      if (linkPath === currentPath) {
+        link.classList.add('is-current');
+        link.setAttribute('aria-current', 'page');
       }
+    }
 
-      sidebarSearchTimeout = setTimeout(function() {
-        var results = doSearch(query);
-        if (sidebarResults) renderResults(results, sidebarResults);
-      }, 150);
-    });
+    var sidebarDomains = document.querySelectorAll('.sidebar-domain');
+    for (var j = 0; j < sidebarDomains.length; j++) {
+      var domainEl = sidebarDomains[j];
+      var domainNameEl = domainEl.querySelector('.sidebar-domain-name');
+      var articlesEl = domainEl.nextElementSibling;
+      var hasCurrentArticle = !!(articlesEl && articlesEl.querySelector('a.is-current'));
+      var isCurrentDomain = !!(domainNameEl && currentDomain &&
+        domainNameEl.textContent.trim() === currentDomain);
 
-    sidebarSearch.addEventListener('focus', function() {
-      if (this.value.trim() && sidebarResults) {
-        var query = this.value.trim();
-        var results = doSearch(query);
-        if (results.length > 0 && sidebarResults) {
-          renderResults(results, sidebarResults);
+      if (hasCurrentArticle || isCurrentDomain) {
+        domainEl.classList.add('is-open');
+        if (isCurrentDomain) {
+          domainEl.classList.add('is-current-domain');
+        }
+        if (articlesEl && articlesEl.tagName === 'UL') {
+          articlesEl.style.display = 'block';
         }
       }
-    });
+    }
   }
+
+  setCurrentPageState();
+
+  function enhanceHomepageSections() {
+    if (!document.body.classList.contains('page-home')) return;
+
+    var sectionMap = {
+      '高引用概念': 'is-top-cited',
+      '桥接概念': 'is-bridge-concepts',
+      '最近更新': 'is-recent-updates',
+      '浏览全部领域': 'is-domain-index',
+      '特色概念': 'is-wiki-intro',
+      '快速导航': 'is-quick-nav'
+    };
+
+    var sections = document.querySelectorAll('.wp-section');
+    for (var i = 0; i < sections.length; i++) {
+      var header = sections[i].querySelector('.wp-section-header');
+      if (!header) continue;
+
+      var headerText = header.textContent.trim();
+      var keys = Object.keys(sectionMap);
+      for (var j = 0; j < keys.length; j++) {
+        if (headerText.indexOf(keys[j]) >= 0) {
+          sections[i].classList.add(sectionMap[keys[j]]);
+        }
+      }
+    }
+  }
+
+  enhanceHomepageSections();
 
   // ─────────────────────────────────────
   // 4. 首页搜索
@@ -184,36 +363,7 @@
 
   var homeSearch = document.getElementById('home-search');
   var homeResults = document.getElementById('home-results');
-  var homeSearchTimeout = null;
-
-  if (homeSearch) {
-    homeSearch.addEventListener('input', function() {
-      clearTimeout(homeSearchTimeout);
-      var query = this.value.trim();
-
-      if (!query) {
-        if (homeResults) homeResults.classList.remove('active');
-        return;
-      }
-
-      homeSearchTimeout = setTimeout(function() {
-        var results = doSearch(query);
-        if (homeResults) renderResults(results, homeResults);
-      }, 150);
-    });
-
-    homeSearch.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        var query = this.value.trim();
-        if (query) {
-          var results = doSearch(query);
-          if (results.length > 0) {
-            goToResult(results[0].item.p);
-          }
-        }
-      }
-    });
-  }
+  initSearchInput(homeSearch, homeResults);
 
   // ─────────────────────────────────────
   // 5. Sidebar 领域折叠 / 展开
@@ -224,7 +374,7 @@
     if (ul && ul.tagName === 'UL') {
       var isHidden = ul.style.display === 'none';
       ul.style.display = isHidden ? 'block' : 'none';
-      el.style.background = isHidden ? '#e8e8e8' : 'transparent';
+      el.classList.toggle('is-open', isHidden);
     }
   };
 
@@ -245,7 +395,7 @@
 
   // 在移动端添加 hamburger 按钮
   (function() {
-    if (window.innerWidth > 768) return;
+    if (window.innerWidth > 1024) return;
 
     var nav = document.querySelector('.top-nav');
     if (!nav) return;
@@ -253,7 +403,6 @@
     var btn = document.createElement('button');
     btn.className = 'sidebar-trigger';
     btn.innerHTML = '☰';
-    btn.style.cssText = 'background:none;border:none;font-size:20px;cursor:pointer;margin-right:12px;color:#333;';
 
     // 检查是否已经存在
     if (!document.querySelector('.sidebar-trigger')) {
@@ -319,7 +468,7 @@
         if (idx >= 0 && idx < tocLinks.length) {
           if (entry.isIntersecting) {
             for (var k = 0; k < tocLinks.length; k++) {
-              tocLinks[k].style.fontWeight = k === idx ? '600' : 'normal';
+              tocLinks[k].classList.toggle('is-active', k === idx);
             }
           }
         }
@@ -332,7 +481,23 @@
   })();
 
   // ─────────────────────────────────────
-  // 9. 回到顶部
+  // 9. 文章页内容清理
+  // ─────────────────────────────────────
+
+  (function() {
+    var pageTitle = document.querySelector('.article-title');
+    var content = document.querySelector('.article-content');
+    if (!pageTitle || !content) return;
+
+    var firstHeading = content.querySelector(':scope > h1');
+    if (firstHeading &&
+        firstHeading.textContent.trim() === pageTitle.textContent.trim()) {
+      firstHeading.remove();
+    }
+  })();
+
+  // ─────────────────────────────────────
+  // 10. 回到顶部
   // ─────────────────────────────────────
 
   (function() {
@@ -343,13 +508,6 @@
     var btn = document.createElement('button');
     btn.innerHTML = '↑ 回到顶部';
     btn.className = 'back-to-top';
-    btn.style.cssText = [
-      'position: fixed; bottom: 32px; right: 24px; z-index: 1000;',
-      'background: #fff; color: #3366cc; border: 1px solid #a2a9b1;',
-      'border-radius: 4px; padding: 8px 14px; cursor: pointer; font-size: 13px;',
-      'display: none; transition: opacity 0.2s;',
-      'box-shadow: 0 1px 3px rgba(0,0,0,0.1);'
-    ].join('');
     btn.addEventListener('click', function() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });

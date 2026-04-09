@@ -9,29 +9,39 @@
 
 :root {
   /* 维基百科标准色 */
-  --link: #3366cc;
-  --link-visited: #795cb2;
-  --link-active: #4444bb;
+  --link: #2457b8;
+  --link-visited: #6f4ca5;
+  --link-active: #153d88;
 
   /* 背景色 */
-  --bg: #f6f6f6;
-  --content-bg: #ffffff;
+  --bg: #efede7;
+  --content-bg: #fffdfa;
   --search-bg: #ffffff;
+  --surface-subtle: #f7f3eb;
+  --surface-muted: #ece7dc;
+  --surface-emphasis: #f2ecdf;
 
   /* 边框 / 文字 */
-  --border: #a2a9b1;
-  --border-light: #c8ccd0;
-  --text: #202122;
-  --text-secondary: #72777d;
+  --border: #b8b5ab;
+  --border-light: #d9d4c9;
+  --border-strong: #8e8a7d;
+  --text: #26231d;
+  --text-secondary: #686257;
+  --text-muted: #8a847a;
+  --ink-soft: #433d33;
+  --accent-rule: #8b7650;
+  --accent-wash: rgba(139, 118, 80, 0.12);
 
   /* 导航侧边栏 */
-  --sidebar-bg: #f6f6f6;
-  --sidebar-width: 240px;
-  --sidebar-border: #e1e4e8;
+  --sidebar-bg: #f7f4ec;
+  --sidebar-width: 248px;
+  --sidebar-border: #ddd7cb;
+  --sidebar-hover: #efe9dc;
+  --sidebar-active: #e8e0cf;
 
   /* 导航顶部 */
-  --nav-bg: #ffffff;
-  --nav-border: #a2a9b1;
+  --nav-bg: rgba(253, 251, 246, 0.94);
+  --nav-border: #d5cec1;
 
   /* 法律色彩 */
   --law-effective: #16a34a;
@@ -41,8 +51,12 @@
   --law-quote-border: #d97706;
 
   /* 引用块 */
-  --blockquote-bg: #f8f9fa;
-  --blockquote-border: #a2a9b1;
+  --blockquote-bg: #f7f2e8;
+  --blockquote-border: #a08a61;
+
+  /* 阴影 */
+  --shadow-soft: 0 14px 36px rgba(44, 36, 22, 0.08);
+  --shadow-search: 0 18px 38px rgba(31, 35, 40, 0.14);
 }
 
 /* ──────────────────────────────────────
@@ -56,10 +70,15 @@ html { font-size: 14.5px; scroll-behavior: smooth; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
     "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  line-height: 1.85;
+  line-height: 1.75;
   color: var(--text);
-  background: var(--bg);
+  background:
+    linear-gradient(180deg, rgba(139, 118, 80, 0.06), rgba(139, 118, 80, 0) 180px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.42)),
+    var(--bg);
+  background-size: auto, auto, auto;
   min-height: 100vh;
+  text-rendering: optimizeLegibility;
 }
 
 a {
@@ -68,6 +87,42 @@ a {
 }
 a:hover { text-decoration: underline; }
 a:visited { color: var(--link-visited); }
+
+.wiki-title,
+.browse-title,
+.domain-title,
+.article-title,
+.article-content h2 {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC",
+    "Noto Serif SC", serif;
+}
+
+::selection {
+  background: rgba(36, 87, 184, 0.14);
+}
+
+a,
+button,
+input,
+.search-result-item,
+.domain-card,
+.browse-domain-card,
+.sidebar-domain,
+.sidebar-articles a {
+  transition:
+    color 0.16s ease,
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid rgba(36, 87, 184, 0.45);
+  outline-offset: 2px;
+}
 
 /* ──────────────────────────────────────
    2. 顶部导航条
@@ -79,19 +134,38 @@ a:visited { color: var(--link-visited); }
   z-index: 100;
   display: flex;
   align-items: center;
-  background: var(--nav-bg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0)),
+    var(--nav-bg);
   border-bottom: 1px solid var(--nav-border);
-  padding: 0 16px;
-  height: 44px;
+  backdrop-filter: blur(10px);
+  padding: 0 18px;
+  height: 48px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75) inset;
 }
 
 .nav-logo {
-  font-size: 16px;
+  position: relative;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
-  margin-right: 32px;
+  margin-right: 28px;
+  letter-spacing: 0.03em;
+  padding-left: 14px;
 }
 .nav-logo:hover { text-decoration: none; }
+
+.nav-logo::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 5px;
+  height: 16px;
+  margin-top: -8px;
+  border-radius: 999px;
+  background: var(--accent-rule);
+}
 
 .nav-links {
   list-style: none;
@@ -100,16 +174,35 @@ a:visited { color: var(--link-visited); }
 }
 
 .nav-links a {
-  color: var(--link);
-  font-size: 14px;
+  color: var(--text-secondary);
+  font-size: 13px;
   padding: 4px 0;
+  letter-spacing: 0.03em;
 }
 .nav-links a.active {
   color: var(--text);
   font-weight: 600;
-  border-bottom: 2px solid var(--text);
+  border-bottom: 2px solid var(--accent-rule);
 }
 .nav-links a.active:hover { text-decoration: none; }
+
+.sidebar-trigger {
+  display: none;
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.sidebar-trigger:hover {
+  background: var(--surface-muted);
+  border-color: var(--border-light);
+}
 
 /* ──────────────────────────────────────
    3. 左侧栏 (Sidebar)
@@ -117,30 +210,33 @@ a:visited { color: var(--link-visited); }
 
 .sidebar {
   position: fixed;
-  top: 44px;
+  top: 48px;
   left: 0;
   bottom: 0;
   width: var(--sidebar-width);
-  background: var(--sidebar-bg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0)),
+    var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   overflow-y: auto;
   z-index: 90;
-  padding: 8px;
+  padding: 10px 12px 18px;
 }
 
 .sidebar-header {
-  padding: 8px 4px;
+  padding: 8px 6px 12px;
   border-bottom: 1px solid var(--sidebar-border);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .sidebar-logo {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   color: var(--text);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  letter-spacing: 0.03em;
 }
 .sidebar-logo:hover { text-decoration: none; }
 
@@ -153,43 +249,86 @@ a:visited { color: var(--link-visited); }
 
 .sidebar-search input {
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 12px;
   border: 1px solid var(--border-light);
-  border-radius: 2px;
+  border-radius: 999px;
   font-size: 13px;
   outline: none;
+  background: rgba(255, 255, 255, 0.88);
 }
 .sidebar-search input:focus {
   border-color: var(--link);
-  box-shadow: 0 0 0 1px var(--link);
+  box-shadow: 0 0 0 3px rgba(36, 87, 184, 0.12);
 }
 
 .sidebar-domain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   cursor: pointer;
-  padding: 4px 4px;
-  border-radius: 2px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
   user-select: none;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
-.sidebar-domain:hover { background: #e8e8e8; }
+.sidebar-domain:hover {
+  background: var(--sidebar-hover);
+  border-color: rgba(139, 118, 80, 0.18);
+}
+.sidebar-domain.is-open,
+.sidebar-domain.is-current-domain {
+  background: var(--sidebar-active);
+  border-color: rgba(139, 118, 80, 0.24);
+}
 
-.sidebar-domain-name { font-weight: 600; font-size: 13px; }
+.sidebar-domain-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+.sidebar-domain-name::before {
+  content: "";
+  width: 3px;
+  height: 13px;
+  border-radius: 999px;
+  background: currentColor;
+  flex: none;
+}
 .sidebar-count { font-size: 11px; color: var(--text-secondary); }
 
 .sidebar-articles {
   list-style: none;
-  margin: 0 0 4px 12px;
+  margin: 6px 0 10px 14px;
+  padding-left: 8px;
+  border-left: 1px solid rgba(184, 181, 171, 0.75);
   font-size: 12px;
 }
 .sidebar-articles li {
-  padding: 1px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 0;
+  border-bottom: 1px solid rgba(217, 212, 201, 0.9);
 }
 .sidebar-articles a {
-  color: var(--link);
+  color: var(--ink-soft);
   display: block;
-  padding: 3px 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  margin: 1px 0;
+  line-height: 1.45;
 }
-.sidebar-articles a:hover { text-decoration: none; background: #eef; }
+.sidebar-articles a:hover {
+  text-decoration: none;
+  background: var(--sidebar-hover);
+  color: var(--link-active);
+}
+.sidebar-articles a.is-current {
+  background: var(--sidebar-active);
+  color: var(--text);
+  font-weight: 600;
+}
 
 /* ──────────────────────────────────────
    4. 搜索结果下拉
@@ -203,27 +342,34 @@ a:visited { color: var(--link-visited); }
   max-height: 320px;
   overflow-y: auto;
   background: var(--content-bg);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: var(--shadow-search);
   display: none;
   z-index: 200;
+  margin-top: 6px;
 }
 .search-results.active { display: block; }
 
 .search-result-item {
-  padding: 8px 12px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 9px 12px;
+  border-bottom: 1px solid #ede7db;
   cursor: pointer;
 }
-.search-result-item:hover { background: #f0f4ff; }
+.search-result-item:hover { background: #f7f2e8; }
+.search-result-item.is-active {
+  background: #f2ead9;
+  outline: none;
+}
 .search-result-item .sr-title {
   font-weight: 600;
-  color: var(--text);
+  color: var(--ink-soft);
+  line-height: 1.45;
 }
 .search-result-item .sr-domain {
   font-size: 11px;
   color: var(--text-secondary);
+  margin-top: 2px;
 }
 
 /* ──────────────────────────────────────
@@ -231,8 +377,8 @@ a:visited { color: var(--link-visited); }
    ────────────────────────────────────── */
 
 .breadcrumb {
-  padding: 8px 12px;
-  font-size: 12px;
+  padding: 4px 2px 10px;
+  font-size: 11.5px;
   color: var(--text-secondary);
 }
 .breadcrumb a { color: var(--link); }
@@ -243,17 +389,32 @@ a:visited { color: var(--link-visited); }
 
 .main-wrapper {
   margin-left: var(--sidebar-width);
-  padding: 12px 16px;
-  min-height: calc(100vh - 44px);
+  padding: 20px 22px 30px;
+  min-height: calc(100vh - 48px);
 }
 
 .main {
-  max-width: 900px;
-  background: var(--content-bg);
-  border: 1px solid var(--border);
-  border-radius: 2px;
+  max-width: 980px;
+  background:
+    linear-gradient(90deg, rgba(139, 118, 80, 0.08), rgba(139, 118, 80, 0) 18%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0) 132px),
+    var(--content-bg);
+  border: 1px solid var(--border-light);
+  border-top: 3px solid var(--accent-rule);
+  border-radius: 12px;
+  box-shadow: var(--shadow-soft);
   padding: 20px 24px 24px;
   margin-bottom: 24px;
+}
+
+.page-home .main,
+.page-browse .main,
+.page-domain .main {
+  max-width: 1120px;
+}
+
+.page-article .main {
+  max-width: 1040px;
 }
 
 /* ──────────────────────────────────────
@@ -261,32 +422,38 @@ a:visited { color: var(--link-visited); }
    ────────────────────────────────────── */
 
 .article-title {
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 700;
-  line-height: 1.3;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
+  line-height: 1.24;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
   color: var(--text);
+  letter-spacing: -0.02em;
 }
 
 .article-meta {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 8px 0 16px;
+  margin: 8px 0 12px;
+  padding: 10px 12px;
   font-size: 12px;
   color: var(--text-secondary);
   flex-wrap: wrap;
+  background: linear-gradient(180deg, rgba(139, 118, 80, 0.08), rgba(139, 118, 80, 0.02));
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
 }
 
 .domain-tag {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 2px;
+  padding: 3px 9px;
+  border-radius: 999px;
   color: #fff;
   font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .meta-item { }
@@ -301,55 +468,70 @@ a:visited { color: var(--link-visited); }
 }
 
 /* 关联概念标签 */
-.related-concepts { margin: 12px 0; }
+.related-concepts {
+  margin: 12px 0 18px;
+  padding: 10px 12px 12px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+}
 .related-concepts h3 {
-  font-size: 14px;
-  margin-bottom: 6px;
+  font-size: 11px;
+  margin-bottom: 8px;
   color: var(--text-secondary);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 .related-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 .related-tag {
   display: inline-block;
-  padding: 3px 10px;
-  background: #e8eaf6;
-  border: 1px solid #c5cae9;
-  border-radius: 14px;
+  padding: 4px 10px;
+  background: #f3eee4;
+  border: 1px solid #ddd3c2;
+  border-radius: 999px;
   font-size: 12px;
-  color: var(--link);
+  color: var(--ink-soft);
 }
 .related-tag:hover {
-  background: #c5cae9;
+  background: #ece3d0;
   text-decoration: none;
+  color: var(--link-active);
 }
 
 /* 文章目录 TOC */
 .article-toc-toggle {
   display: none;
   cursor: pointer;
-  padding: 8px;
-  background: #f0f0f0;
+  padding: 8px 10px;
+  background: var(--surface-muted);
   border: 1px solid var(--border-light);
-  border-radius: 2px;
+  border-radius: 6px;
   text-align: center;
   font-size: 13px;
 }
 
 .article-toc {
-  /* float layout kept for compatibility — gap handled via article-content overflow fix */
   float: right;
-  width: 200px;
+  width: 220px;
   margin: 0 0 16px 24px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  padding: 12px 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0)),
+    var(--surface-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 12px 14px;
   font-size: 12px;
   flex-shrink: 0;
+  position: sticky;
+  top: 68px;
 }
 
 .article-toc h3 {
-  font-size: 14px;
+  font-size: 11px;
   margin-bottom: 8px;
   color: var(--text);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .article-toc ul {
@@ -358,12 +540,22 @@ a:visited { color: var(--link-visited); }
 }
 
 .article-toc li {
-  padding: 3px 0;
-  border-bottom: 1px solid #eee;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(217, 212, 201, 0.8);
 }
 
 .article-toc a {
-  color: var(--link);
+  color: var(--text-secondary);
+  display: block;
+  padding-left: 10px;
+  border-left: 2px solid transparent;
+}
+
+.article-toc a.is-active {
+  border-left-color: var(--accent-rule);
+  color: var(--text);
+  font-weight: 600;
+  background: rgba(139, 118, 80, 0.08);
 }
 
 /* 正文区域 */
@@ -375,6 +567,8 @@ a:visited { color: var(--link-visited); }
 .article-content a.wikilink {
   color: var(--link);
   text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.14em;
 }
 .article-content a.wikilink:hover { color: var(--link-active); }
 .article-content .broken-wikilink {
@@ -383,34 +577,51 @@ a:visited { color: var(--link-visited); }
 
 /* 正文中的 h2 / h3 */
 .article-content h2 {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
   margin: 28px 0 12px;
   padding-bottom: 6px;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid #d7ccb7;
   color: var(--text);
+  letter-spacing: -0.015em;
+}
+
+.article-content h2::before {
+  content: "§";
+  margin-right: 8px;
+  color: var(--accent-rule);
 }
 
 .article-content h3 {
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 600;
   margin: 20px 0 8px;
   color: var(--text);
+  letter-spacing: 0.02em;
 }
 
 .article-content p {
   margin: 8px 0;
-  line-height: 1.85;
+  line-height: 1.8;
+  text-align: justify;
+  text-justify: inter-ideograph;
 }
 
 /* 法条引用 (blockquote) */
 .article-content blockquote {
   background: var(--blockquote-bg);
   border-left: 4px solid var(--blockquote-border);
-  padding: 10px 16px;
+  border: 1px solid #e4dac4;
+  border-left-width: 4px;
+  padding: 10px 14px;
   margin: 12px 0;
   font-size: 13.5px;
   line-height: 1.7;
+  border-radius: 0 6px 6px 0;
+}
+
+.article-content > blockquote:first-child {
+  background: linear-gradient(135deg, rgba(139, 118, 80, 0.12), rgba(139, 118, 80, 0.03));
 }
 
 /* 正文中的 ul / ol */
@@ -430,25 +641,31 @@ a:visited { color: var(--link-visited); }
   width: 100%;
   margin: 16px 0;
   font-size: 13px;
+  table-layout: fixed;
+  background: #fffdfa;
 }
 .article-content table th,
 .article-content table td {
   border: 1px solid var(--border);
-  padding: 6px 10px;
+  padding: 7px 10px;
   text-align: left;
 }
 .article-content table th {
-  background: #eaecf0;
+  background: #efe7d8;
   font-weight: 600;
+}
+
+.article-content table tbody tr:nth-child(even) {
+  background: #fbf9f4;
 }
 
 /* 底部来源 */
 .sources-info {
   margin: 20px 0 8px;
   padding: 10px 16px;
-  background: #f8f9fa;
+  background: var(--surface-subtle);
   border: 1px solid var(--border-light);
-  border-radius: 2px;
+  border-radius: 6px;
 }
 .sources-count {
   font-size: 12px;
@@ -459,8 +676,9 @@ a:visited { color: var(--link-visited); }
 .backlinks {
   margin: 16px 0;
   padding: 12px 16px;
-  background: #f8f9fa;
-  border-top: 1px solid var(--border-light);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
 }
 .backlinks h3 {
   font-size: 14px;
@@ -484,6 +702,29 @@ a:visited { color: var(--link-visited); }
   padding-top: 12px;
   border-top: 1px solid var(--border-light);
   font-size: 13px;
+  gap: 18px;
+}
+
+.back-to-top {
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  z-index: 1000;
+  display: none;
+  padding: 9px 13px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+  color: var(--link);
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(31, 35, 40, 0.1);
+}
+
+.back-to-top:hover {
+  background: #fff;
+  text-decoration: none;
 }
 
 /* ──────────────────────────────────────
@@ -492,97 +733,170 @@ a:visited { color: var(--link-visited); }
 
 .wiki-header {
   text-align: center;
-  padding: 28px 0 16px;
-  border-bottom: 1px solid var(--border);
+  padding: 22px 0 16px;
+  border-bottom: 1px solid var(--border-light);
   margin-bottom: 20px;
 }
 
 .wiki-title {
-  font-size: 30px;
+  font-size: 40px;
   font-weight: 800;
   color: var(--text);
-  letter-spacing: 2px;
+  letter-spacing: 0.06em;
 }
 
 .wiki-slogan {
   color: var(--text-secondary);
-  font-size: 14px;
-  margin-top: 4px;
+  font-size: 12px;
+  margin-top: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 /* 大搜索框 */
 .wiki-search-home {
   position: relative;
-  max-width: 560px;
-  margin: 20px auto;
+  max-width: 620px;
+  margin: 18px auto 16px;
 }
 
 .wiki-search-home input {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid var(--border);
-  border-radius: 6px;
+  padding: 13px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
   font-size: 15px;
   outline: none;
   background: var(--content-bg);
+  box-shadow: 0 1px 0 rgba(31, 35, 40, 0.03);
 }
 .wiki-search-home input:focus {
   border-color: var(--link);
+  box-shadow: 0 0 0 4px rgba(36, 87, 184, 0.12);
 }
 
 /* 统计卡片 */
 .wiki-stats {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
-  justify-content: center;
-  margin: 20px 0;
-  flex-wrap: wrap;
+  margin: 16px 0 22px;
 }
 
 .stat-box {
-  background: var(--content-bg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0)),
+    var(--content-bg);
   border: 1px solid var(--border-light);
-  border-radius: 4px;
-  padding: 12px 20px;
-  text-align: center;
-  min-width: 160px;
+  border-top: 3px solid var(--accent-rule);
+  border-radius: 10px;
+  padding: 13px 16px 12px;
+  text-align: left;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
 }
 .stat-box strong {
-  font-size: 22px;
+  font-size: 30px;
   color: var(--text);
-}
-.stat-box span {
-  font-size: 12px;
-  color: var(--text-secondary);
+  line-height: 1.1;
+  display: block;
+  margin-bottom: 6px;
 }
 
 /* 维基百科首页两栏布局 */
 .wikipedia-two-columns {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 12px;
-  margin-top: 16px;
+  grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.95fr);
+  gap: 18px;
+  margin-top: 12px;
 }
 
 .wp-section {
   border: 1px solid var(--border-light);
-  background: var(--content-bg);
-  margin-bottom: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0)),
+    var(--content-bg);
+  margin-bottom: 14px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.page-home .wp-section.is-top-cited,
+.page-home .wp-section.is-bridge-concepts,
+.page-home .wp-section.is-recent-updates {
+  border-color: #d3c6ae;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.page-home .wp-section.is-top-cited .wp-section-header,
+.page-home .wp-section.is-bridge-concepts .wp-section-header,
+.page-home .wp-section.is-recent-updates .wp-section-header {
+  background: linear-gradient(180deg, #efe7d8 0%, #e7ddcb 100%);
+  font-weight: 700;
+}
+
+.page-home .wp-section.is-top-cited .featured-list li:first-child a,
+.page-home .wp-section.is-top-cited .featured-list li:nth-child(2) a,
+.page-home .wp-section.is-bridge-concepts .featured-list li:first-child a,
+.page-home .wp-section.is-bridge-concepts .featured-list li:nth-child(2) a,
+.page-home .wp-section.is-recent-updates .recent-list li:first-child a,
+.page-home .wp-section.is-recent-updates .recent-list li:nth-child(2) a {
+  font-weight: 700;
+}
+
+.page-home .wp-section.is-top-cited .wp-section-content,
+.page-home .wp-section.is-bridge-concepts .wp-section-content {
+  padding-top: 8px;
+}
+
+.page-home .wp-section.is-recent-updates .recent-list li {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.page-home .wp-section.is-bridge-concepts .domain-tag {
+  min-width: 44px;
+  text-align: center;
+}
+
+.page-home .wp-section.is-domain-index .wp-section-header,
+.page-home .wp-section.is-quick-nav .wp-section-header {
+  background: #eee7d9;
+}
+
+.page-home .wp-section.is-wiki-intro {
+  border-color: #cfbea0;
+  background:
+    linear-gradient(135deg, rgba(139, 118, 80, 0.12), rgba(139, 118, 80, 0) 58%),
+    var(--content-bg);
+}
+
+.page-home .wp-section.is-wiki-intro .wp-section-content {
+  font-size: 14px;
+  line-height: 1.92;
+}
+
+.page-home .wp-section.is-wiki-intro strong {
+  color: var(--ink-soft);
 }
 
 .wp-section-header {
-  background: #e8eaec;
+  background: var(--surface-muted);
   padding: 8px 12px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 11px;
   color: var(--text);
   border-bottom: 1px solid var(--border-light);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .wp-section-content {
-  padding: 10px 12px;
+  padding: 12px 14px 14px;
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.72;
 }
 
 .featured-list, .recent-list, .nav-list {
@@ -590,25 +904,63 @@ a:visited { color: var(--link-visited); }
   padding: 0;
 }
 
+.page-home .wp-section.is-top-cited .featured-list,
+.page-home .wp-section.is-bridge-concepts .featured-list,
+.page-home .wp-section.is-recent-updates .recent-list {
+  counter-reset: wiki-rank;
+}
+
 .featured-list li {
-  padding: 3px 0;
-  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+  padding: 7px 0 7px 30px;
+  border-bottom: 1px solid #eee7da;
 }
 
 .recent-list li {
-  padding: 3px 0;
-  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+  padding: 7px 0 7px 30px;
+  border-bottom: 1px solid #eee7da;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
 }
+
+.page-home .wp-section.is-top-cited .featured-list li::before,
+.page-home .wp-section.is-bridge-concepts .featured-list li::before,
+.page-home .wp-section.is-recent-updates .recent-list li::before {
+  counter-increment: wiki-rank;
+  content: counter(wiki-rank, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.featured-list a,
+.recent-list a,
+.nav-list a {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.featured-list a:hover,
+.recent-list a:hover,
+.nav-list a:hover {
+  color: var(--link-active);
+}
+
 .recent-list .date {
   font-size: 11px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .nav-list li {
-  padding: 3px 0;
+  padding: 4px 0;
 }
 .nav-list span {
   font-size: 11px;
@@ -624,25 +976,40 @@ a:visited { color: var(--link-visited); }
 .domain-cards-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: 10px;
 }
 
 .domain-card {
-  background: #f8f9fa;
-  border-radius: 2px;
-  padding: 8px;
-  text-align: center;
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0)),
+    var(--surface-subtle);
+  border-radius: 9px;
+  padding: 11px 12px 10px;
+  text-align: left;
   display: block;
-  border: 1px solid #e1e4e8;
+  border: 1px solid var(--border-light);
+  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
 .domain-card:hover {
-  background: #eef;
+  background: #f6f1e6;
+  border-color: var(--border);
+  transform: translateY(-1px);
   text-decoration: none;
+}
+.domain-card::after {
+  content: "→";
+  position: absolute;
+  right: 10px;
+  top: 11px;
+  color: var(--text-muted);
+  font-size: 12px;
 }
 .domain-card h3 {
   font-size: 13px;
   color: var(--text);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  padding-right: 14px;
 }
 .domain-card-count {
   font-size: 11px;
@@ -656,15 +1023,22 @@ a:visited { color: var(--link-visited); }
 .domain-page { }
 
 .domain-title {
-  font-size: 28px;
+  font-size: 34px;
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
+  letter-spacing: -0.015em;
 }
 
 .domain-count {
   color: var(--text-secondary);
-  margin-bottom: 16px;
-  font-size: 14px;
+  margin-bottom: 18px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  background: var(--surface-subtle);
 }
 
 /* ──────────────────────────────────────
@@ -673,11 +1047,11 @@ a:visited { color: var(--link-visited); }
 
 .wiki-footer {
   text-align: center;
-  padding: 12px 16px;
-  font-size: 12px;
+  padding: 14px 16px;
+  font-size: 11.5px;
   color: var(--text-secondary);
   border-top: 1px solid var(--border-light);
-  background: #f0f0f0;
+  background: #f3f3f1;
   margin-left: var(--sidebar-width);
 }
 
@@ -697,53 +1071,119 @@ span.broken-wikilink {
    ────────────────────────────────────── */
 
 .domain-articles-list {
-  column-count: 2;
-  column-gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 30px;
+  counter-reset: domain-entry;
+  position: relative;
+}
+
+.domain-articles-list::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 0.5px);
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(184, 181, 171, 0), rgba(184, 181, 171, 0.85) 8%, rgba(184, 181, 171, 0.85) 92%, rgba(184, 181, 171, 0));
 }
 
 .domain-article-card {
   break-inside: avoid;
-  padding: 6px 8px;
-  border-bottom: 1px solid #eee;
+  position: relative;
+  padding: 11px 4px 12px 34px;
+  border-bottom: 1px solid #ece4d6;
+}
+
+.domain-article-card::before {
+  counter-increment: domain-entry;
+  content: counter(domain-entry, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 13px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
 }
 
 .domain-article-title {
-  color: var(--link);
-  font-weight: 600;
+  color: var(--ink-soft);
+  font-weight: 700;
   font-size: 14px;
+  line-height: 1.45;
 }
-.domain-article-title:hover { text-decoration: underline; }
+.domain-article-title:hover {
+  color: var(--link-active);
+  text-decoration: underline;
+}
 
 .domain-article-meta {
   font-size: 11px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   display: flex;
-  gap: 12px;
-  margin-top: 2px;
+  gap: 10px;
+  margin-top: 3px;
+  flex-wrap: wrap;
 }
 
 /* ──────────────────────────────────────
-   13. 移动端响应式
+   13. 平板 / 移动端响应式
    ────────────────────────────────────── */
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   :root {
     --sidebar-width: 0px;
+  }
+
+  .top-nav {
+    padding: 0 12px;
+    height: 50px;
+  }
+
+  .nav-logo {
+    margin-right: 14px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .nav-links {
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  .nav-links a {
+    font-size: 12.5px;
+  }
+
+  .sidebar-trigger {
+    display: block;
   }
 
   .sidebar {
     display: none;
     position: fixed;
     left: 0;
-    top: 44px;
+    top: 50px;
     bottom: 0;
     z-index: 500;
-    background: var(--content-bg);
-    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
-    --sidebar-width: 260px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0)),
+      var(--content-bg);
+    box-shadow: 12px 0 24px rgba(0,0,0,0.12);
+    width: min(320px, 86vw);
+    padding: 12px 10px 18px;
   }
   .sidebar.active {
     display: block;
+  }
+
+  .main,
+  .page-home .main,
+  .page-browse .main,
+  .page-domain .main,
+  .page-article .main {
+    max-width: 100%;
   }
 
   .main-wrapper,
@@ -751,16 +1191,104 @@ span.broken-wikilink {
     margin-left: 0;
   }
 
-  .wikipedia-two-columns {
-    grid-template-columns: 1fr;
+  .main-wrapper {
+    padding: 16px 14px 22px;
   }
 
-  .domain-cards-grid {
+  .wiki-footer {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .page-home .wikipedia-two-columns {
+    grid-template-columns: minmax(0, 1.45fr) minmax(220px, 0.95fr);
+    gap: 12px;
+  }
+
+  .page-home .wiki-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .page-home .domain-cards-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 
+  .page-domain .domain-articles-list {
+    gap: 0 18px;
+  }
+
+  .page-domain .domain-articles-list::before {
+    left: calc(50% - 0.5px);
+  }
+
+  .page-article .article-toc {
+    width: 176px;
+    margin-left: 18px;
+    padding: 10px 12px;
+    top: 64px;
+  }
+
+  .page-article .article-title {
+    font-size: 28px;
+  }
+
+  .browse-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .main-wrapper {
+    padding: 10px 8px 18px;
+  }
+
+  .main {
+    padding: 16px 12px 18px;
+    border-radius: 8px;
+  }
+
+  .wiki-header {
+    padding: 14px 0 12px;
+  }
+
+  .wiki-title {
+    font-size: 31px;
+  }
+
+  .wiki-search-home {
+    margin: 14px auto 14px;
+  }
+
+  .wiki-search-home input {
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+
+  .wikipedia-two-columns,
+  .page-home .wikipedia-two-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .wiki-stats,
+  .page-home .wiki-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .domain-cards-grid,
+  .page-home .domain-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .domain-articles-list {
-    column-count: 1;
+    grid-template-columns: 1fr;
+  }
+
+  .domain-articles-list::before {
+    display: none;
+  }
+
+  .domain-article-card {
+    padding-left: 28px;
   }
 
   .article-toc {
@@ -771,23 +1299,69 @@ span.broken-wikilink {
     float: none;
     width: 100%;
     margin: 0 0 16px 0;
+    position: static;
   }
 
   .article-toc-toggle {
     display: block;
   }
 
-  .wiki-title {
-    font-size: 22px;
+  .article-title {
+    font-size: 25px;
+    line-height: 1.25;
   }
 
-  /* mobile hamburger button */
-  .sidebar-trigger {
+  .article-meta,
+  .related-concepts {
+    border-radius: 8px;
+  }
+
+  .article-content h2 {
+    font-size: 20px;
+  }
+
+  .article-content table {
     display: block;
+    overflow-x: auto;
+    table-layout: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .article-content table th,
+  .article-content table td {
+    min-width: 112px;
+  }
+
+  .browse-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .back-to-top {
+    right: 12px;
+    bottom: 14px;
+    padding: 8px 12px;
   }
 }
 
 @media (max-width: 480px) {
+  .top-nav {
+    padding: 0 8px;
+  }
+
+  .nav-logo {
+    font-size: 13px;
+    margin-right: 8px;
+  }
+
+  .nav-links {
+    gap: 8px;
+  }
+
+  .nav-links a {
+    font-size: 12px;
+  }
+
   .domain-cards-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -799,8 +1373,15 @@ span.broken-wikilink {
   }
 
   .wiki-stats {
-    flex-direction: column;
-    align-items: center;
+    grid-template-columns: 1fr;
+  }
+
+  .stat-box {
+    padding: 12px 14px 11px;
+  }
+
+  .wp-section-content {
+    padding: 11px 12px 12px;
   }
 }
 
@@ -809,43 +1390,48 @@ span.broken-wikilink {
    ────────────────────────────────────── */
 
 .browse-title {
-  font-size: 26px;
+  font-size: 34px;
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  letter-spacing: -0.015em;
 }
 
 .browse-subtitle {
   color: var(--text-secondary);
-  font-size: 14px;
-  margin-bottom: 20px;
+  font-size: 13px;
+  margin-bottom: 22px;
 }
 
 .browse-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 18px;
 }
 
 .browse-domain-card {
-  background: var(--content-bg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0)),
+    var(--content-bg);
   border: 1px solid var(--border-light);
-  border-radius: 4px;
-  padding: 16px;
+  border-radius: 10px;
+  padding: 14px 14px 12px;
+  box-shadow: var(--shadow-soft);
 }
 
 .browse-domain-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border-light);
 }
 
 .browse-domain-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   text-decoration: none;
+  line-height: 1.25;
 }
 .browse-domain-title:hover { text-decoration: underline; }
 
@@ -863,22 +1449,32 @@ span.broken-wikilink {
 }
 
 .browse-domain-list li {
-  padding: 3px 0;
+  padding: 5px 0;
+  border-bottom: 1px solid #eee7da;
 }
 
 .browse-domain-list a {
-  color: var(--link);
+  color: var(--ink-soft);
+  line-height: 1.45;
 }
-.browse-domain-list a:hover { text-decoration: underline; }
+.browse-domain-list a:hover {
+  color: var(--link-active);
+  text-decoration: underline;
+}
 
-@media (max-width: 1024px) {
-  .browse-grid {
-    grid-template-columns: repeat(2, 1fr);
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
-}
 
-@media (max-width: 600px) {
-  .browse-grid {
-    grid-template-columns: 1fr;
+  a,
+  button,
+  input,
+  .search-result-item,
+  .domain-card,
+  .browse-domain-card,
+  .sidebar-domain,
+  .sidebar-articles a {
+    transition: none;
   }
 }
