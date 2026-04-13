@@ -179,21 +179,42 @@
     if (!input || !container) return;
 
     var searchTimeout = null;
+    var isComposing = false;
 
-    input.addEventListener('input', function() {
+    function clearResults() {
+      container.classList.remove('active');
+      container.innerHTML = '';
+      container.dataset.activeIndex = '-1';
+    }
+
+    function scheduleSearch() {
       clearTimeout(searchTimeout);
-      var query = this.value.trim();
+      var query = input.value.trim();
 
       if (!query) {
-        container.classList.remove('active');
-        container.innerHTML = '';
-        container.dataset.activeIndex = '-1';
+        clearResults();
         return;
       }
 
       searchTimeout = setTimeout(function() {
         performSearch(query, container);
       }, 120);
+    }
+
+    input.addEventListener('compositionstart', function() {
+      isComposing = true;
+    });
+
+    input.addEventListener('compositionend', function() {
+      isComposing = false;
+      scheduleSearch();
+    });
+
+    input.addEventListener('input', function() {
+      if (isComposing) {
+        return;
+      }
+      scheduleSearch();
     });
 
     input.addEventListener('focus', function() {
@@ -203,6 +224,10 @@
     });
 
     input.addEventListener('keydown', function(e) {
+      if (isComposing || e.isComposing || e.keyCode === 229) {
+        return;
+      }
+
       var items = container.querySelectorAll('.search-result-item');
       var activeIndex = parseInt(container.dataset.activeIndex || '-1', 10);
       if (isNaN(activeIndex)) activeIndex = -1;
