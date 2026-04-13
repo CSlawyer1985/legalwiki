@@ -2,7 +2,7 @@
 """
 build.py — 法律概念 Wiki 静态站点构建脚本
 
-从 /Users/CS/Trae/知识库/wiki/concepts/ 读取概念文章（只读），
+从 wiki/concepts 源目录读取概念文章（只读），
 生成维基百科风格的静态 HTML 网站到当前目录。
 
 用法:
@@ -29,12 +29,25 @@ except ImportError:
 # ──────────────────────────────────────────────────────
 # 路径配置
 # ──────────────────────────────────────────────────────
-
-WIKI_SRC = Path("/Users/CS/Trae/知识库/wiki/concepts")   # 只读源目录
+WIKI_SRC_CANDIDATES = [
+    Path("/Users/CS/Documents/知识库/wiki/concepts"),
+    Path("/Users/CS/Trae/知识库/wiki/concepts"),
+]
 BUILDER_DIR = Path(__file__).resolve().parent              # 项目目录（输出目录）
 BUILD_CACHE = BUILDER_DIR / ".build_cache"                 # 临时缓存
 ARTICLE_DIR = BUILDER_DIR / "article"
 DOMAIN_DIR = BUILDER_DIR / "domain"
+
+
+def resolve_wiki_src():
+    for path in WIKI_SRC_CANDIDATES:
+        if path.exists():
+            return path
+    checked = "\n".join(f"  - {path}" for path in WIKI_SRC_CANDIDATES)
+    raise FileNotFoundError(f"未找到 wiki 源目录，已检查:\n{checked}")
+
+
+WIKI_SRC = resolve_wiki_src()   # 只读源目录
 
 # ──────────────────────────────────────────────────────
 # 全局常量
@@ -56,6 +69,7 @@ DOMAIN_COLORS = {
     "投融资": "#7c2d12", "民事诉讼法": "#2563eb", "担保法": "#9333ea",
     "数据合规": "#0d9488", "知识产权": "#b45309", "证据与程序": "#1d4ed8",
     "婚姻家事": "#e11d48", "建设工程": "#a16207", "税法": "#0ea5e9",
+    "民法": "#0f766e", "环境法": "#166534", "金融法": "#7c2d12",
 }
 
 # ──────────────────────────────────────────────────────
@@ -107,14 +121,28 @@ def parse_frontmatter(text):
 def extract_wikilinks(text):
     return set(WIKILINK_RE.findall(text))
 
+
+def normalize_scalar(value, default=""):
+    if isinstance(value, list):
+        return value[0] if value else default
+    return value if value not in (None, "") else default
+
+
+def normalize_int(value, default=0):
+    value = normalize_scalar(value, default)
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
 def parse_concept(md_path, concept_name):
     """解析单篇概念文章，返回解析结果 dict"""
     text = md_path.read_text(encoding="utf-8", errors="ignore")
     fm, body = parse_frontmatter(text)
-    domain = fm.get("domain", md_path.parent.name)
-    last_updated = fm.get("last_updated", "")
+    domain = normalize_scalar(fm.get("domain"), md_path.parent.name)
+    last_updated = normalize_scalar(fm.get("last_updated"), "")
     related = fm.get("related", [])
-    sources_count = fm.get("sources_count", 0)
+    sources_count = normalize_int(fm.get("sources_count"), 0)
 
     # 提取现行基准行
     current_benchmark = ""
