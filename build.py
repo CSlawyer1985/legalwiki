@@ -118,6 +118,18 @@ def parse_frontmatter(text):
                 fm[current_key] = []
     return fm, body
 
+def should_publish(concept_data: dict) -> bool:
+    """概念分层过滤：仅 T1+T2 发布到对外网站，T3+T4 仅内部检索"""
+    tier = concept_data.get("tier", "")
+    # 如果未设置 tier，默认发布（向后兼容，避免现有文章消失）
+    if not tier:
+        return True
+    try:
+        t = int(tier)
+        return t <= 2
+    except (ValueError, TypeError):
+        return True
+
 def extract_wikilinks(text):
     return set(WIKILINK_RE.findall(text))
 
@@ -143,6 +155,8 @@ def parse_concept(md_path, concept_name):
     last_updated = normalize_scalar(fm.get("last_updated"), "")
     related = fm.get("related", [])
     sources_count = normalize_int(fm.get("sources_count"), 0)
+    tier = normalize_int(fm.get("tier"), 0)
+    tier_label = normalize_scalar(fm.get("tier_label"), "")
 
     # 提取现行基准行
     current_benchmark = ""
@@ -160,6 +174,8 @@ def parse_concept(md_path, concept_name):
     return {
         "name": concept_name,
         "domain": domain,
+        "tier": tier,
+        "tier_label": tier_label,
         "last_updated": last_updated,
         "related": related,
         "sources_count": sources_count,
@@ -171,12 +187,13 @@ def parse_concept(md_path, concept_name):
     }
 
 def scan_concepts():
-    """扫描所有概念文章，返回概念列表和映射表"""
+    """扫描所有概念文章，返回概念列表和映射表（已过滤 T3+T4）"""
     print(f"  [2/5] 扫描概念文章...")
     concepts = []
     concept_map = {}  # name -> {slug, domain}
     slug_used = set()
     total = 0
+    skipped_tier = 0
 
     cache_concepts = BUILD_CACHE / "concepts"
     for domain_dir in sorted(cache_concepts.iterdir()):
@@ -186,6 +203,11 @@ def scan_concepts():
             total += 1
             concept_name = md_file.stem
             result = parse_concept(md_file, concept_name)
+
+            # 概念分层过滤：T3+T4 不发布到对外网站
+            if not should_publish(result):
+                skipped_tier += 1
+                continue
 
             # slug 去重
             slug = concept_name
@@ -197,7 +219,11 @@ def scan_concepts():
             concepts.append(result)
             concept_map[concept_name] = {"slug": slug, "domain": result["domain"]}
 
+    published = len(concepts)
     print(f"    解析了 {total} 篇概念文章，{len(concept_map)} 个可用概念（去重后 slug {len(slug_used)} 个）")
+    if skipped_tier > 0:
+        print(f"    已过滤 {skipped_tier} 篇 T3+T4 文章（仅内部检索，不发布到网站）")
+        print(f"    发布 {published} 篇（T1+T2+未分级）到网站")
     return concepts, concept_map
 
 # ──────────────────────────────────────────────────────
@@ -380,6 +406,15 @@ def article_page(concept, concepts, backlinks, concept_map):
     if concept.get("current_benchmark"):
         benchmark_html = f'<blockquote class="benchmark-quote"><strong>现行基准：</strong>{concept["current_benchmark"]}</blockquote>'
 
+    # 概念层级标签
+    tier_html = ""
+    tier = concept.get("tier", 0)
+    tier_label = concept.get("tier_label", "")
+    if tier and tier_label:
+        tier_colors = {1: "#15803d", 2: "#0369a1", 3: "#a16207", 4: "#78716c"}
+        color = tier_colors.get(tier, "#78716c")
+        tier_html = f'<span class="tier-badge" style="background:{color};color:#fff;padding:2px 8px;border-radius:4px;font-size:12px">T{tier} {tier_label}</span>'
+
     page_html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -397,6 +432,7 @@ def article_page(concept, concepts, backlinks, concept_map):
     <h1 class="article-title">{concept["name"]}</h1>
     <div class="article-meta">
       <span class="domain-tag" style="background:{domain_color}">{domain}</span>
+      {tier_html}
       <span class="meta-item">最后更新: {concept.get('last_updated', '未知')}</span>
       <span class="meta-item">引用来源: {concept.get('sources_count', 0)}</span>
     </div>
@@ -726,6 +762,8 @@ def generate_search_index(concepts):
             "s": c.get("sources_count", 0),
             "u": c.get("last_updated", ""),
             "p": f"article/{c['slug']}.html",
+            "tier": c.get("tier", 0),
+            "tier_label": c.get("tier_label", ""),
         })
     (BUILDER_DIR / "search-index.json").write_text(
         json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8"
