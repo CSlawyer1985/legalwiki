@@ -164,15 +164,15 @@
     <div class="article-meta">
       <span class="domain-tag" style="background:#0d9488">数据合规</span>
       
-      <span class="meta-item">最后更新: 2026-04-06</span>
-      <span class="meta-item">引用来源: 4</span>
+      <span class="meta-item">最后更新: 2026-05-26</span>
+      <span class="meta-item">引用来源: 5</span>
     </div>
     
     <div class="related-concepts"><h3>关联概念</h3><div class="related-tags"><a href="算法合规.html" class="related-tag">算法合规</a><a href="算法偏见与歧视防范.html" class="related-tag">算法偏见与歧视防范</a><a href="大模型训练数据合规.html" class="related-tag">大模型训练数据合规</a></div></div>
     <div class="article-toc-toggle" onclick="toggleMobileToc()">📋 显示/隐藏目录</div>
     <nav class="article-toc" id="article-toc">
       <h3>目录</h3>
-      <ul><li><a href="#section-0">核心法条</a></li><li><a href="#section-1">规则沿革</a></li><li><a href="#section-2">一、AIGC 监管框架概览</a></li><li><a href="#section-3">二、AIGC 内容安全义务</a></li><li><a href="#section-4">三、训练数据合规（与 AIGC 相关的部分）</a></li><li><a href="#section-5">四、AIGC 内容标识义务</a></li><li><a href="#section-6">五、AIGC 的备案与监管</a></li><li><a href="#section-7">六、AIGC 相关侵权责任</a></li><li><a href="#section-8">七、企业合规实务清单</a></li><li><a href="#section-9">知识库原始资料索引</a></li></ul>
+      <ul><li><a href="#section-0">核心法条</a></li><li><a href="#section-1">规则沿革</a></li><li><a href="#section-2">一、AIGC 监管框架概览</a></li><li><a href="#section-3">二、AIGC 内容安全义务</a></li><li><a href="#section-4">三、训练数据合规（与 AIGC 相关的部分）</a></li><li><a href="#section-5">四、AIGC 内容标识义务</a></li><li><a href="#section-6">五、AIGC 的备案与监管</a></li><li><a href="#section-7">六、AIGC 相关侵权责任</a></li><li><a href="#section-8">七、企业合规实务清单</a></li><li><a href="#section-9">八、AIGC 侵权争议的新增实务补充</a></li><li><a href="#section-10">知识库原始资料索引</a></li></ul>
     </nav>
     <h2 id="section-toc-marker" style="display:none"></h2>
     <div class="article-content">
@@ -181,7 +181,7 @@
 </blockquote>
 <h1>人工智能生成内容（AIGC）合规</h1>
 <blockquote>
-<p>最后更新：2026-04-06 | 由 LLM 基于知识库原始资料编译<br />
+<p>最后更新：2026-05-26 | 由 LLM 基于知识库原始资料编译<br />
 关联概念：<a href="../article/算法合规.html" class="wikilink">算法合规</a> | <a href="../article/算法偏见与歧视防范.html" class="wikilink">算法偏见与歧视防范</a> | <a href="../article/大模型训练数据合规.html" class="wikilink">大模型训练数据合规</a></p>
 </blockquote>
 <h2>核心法条</h2>
@@ -512,6 +512,26 @@
 <li><strong>知识产权保护</strong>——建立生成内容的知识产权审核机制</li>
 <li><strong>数据标注规范</strong>——制定标注规则，开展质量评估</li>
 </ol>
+<h2>八、AIGC 侵权争议的新增实务补充</h2>
+<h3>8.1 侵权判断应区分三个环节</h3>
+<p>新增资料将 AIGC 风险拆解为<strong>数据采集、生成加工、发表传播</strong>三个阶段：</p>
+<ul>
+<li><strong>数据采集阶段</strong>：从网络公开空间抓取训练数据，并不当然构成侵权；但若绕过加密、反爬虫或进入私域数据库抓取，则可能触发侵权甚至刑事风险。</li>
+<li><strong>生成加工阶段</strong>：纯内部生成且未对外传播时，通常难以直接形成可归责的损害事实。</li>
+<li><strong>发表传播阶段</strong>：一旦对外发布、直播、商业化传播，才最容易触发肖像权、声音权益、著作权、姓名权与一般人格权争议。</li>
+</ul>
+<h3>8.2 著作权归属的当前裁判取向</h3>
+<ul>
+<li><strong>纯机器自动生成、用户仅输入简单提示词</strong>：通常难以满足独创性要求，不宜直接认定为作品。</li>
+<li><strong>提示词设计、参数调节、筛选编排、后期编辑体现显著智力投入</strong>：更可能被认定为人机协同创作成果，用户有机会主张作者身份及署名权、信息网络传播权。</li>
+<li><strong>提示词本身</strong>：目前裁判倾向认为简单关键词堆叠仍属“思想或指令”，但具备场景化叙事、结构化表达的复杂提示词，仍存在被主张作品保护的空间。</li>
+</ul>
+<h3>8.3 平台责任与误判风险</h3>
+<ul>
+<li>平台对 AIGC 内容负有标识、审核和投诉处理义务，但承担责任通常以<strong>收到有效通知后未及时处置</strong>为前提。</li>
+<li>若平台以算法自动判定用户内容为 AIGC 并采取隐藏、禁言等措施，也应当对判定依据和处理结果提供合理说明，否则可能构成违约或侵害用户权益。</li>
+<li>因此，AIGC 平台除内容审核外，还应建立“误判申诉 + 人工复核 + 说明留痕”机制。</li>
+</ul>
 <h2>知识库原始资料索引</h2>
 <h3>法律法规</h3>
 <ul>
@@ -522,9 +542,10 @@
 <ul>
 <li><span class="source-title">法院学术讨论会：司法实践中AIGC性质认定的标准构建</span></li>
 <li><span class="source-title">邱遥堃：文生视频大模型Sora将如何影响智慧法院建设升级迭代</span></li>
+<li><span class="source-title">人工智能生成内容（AIGC）涉及的侵权问题探究</span></li>
 </ul>
     </div>
-    <div class="sources-info"><p class="sources-count">引用资料: 4 项</p></div>
+    <div class="sources-info"><p class="sources-count">引用资料: 5 项</p></div>
     
 <div class="backlinks">
   <h3>参见 · 反向链接</h3>
