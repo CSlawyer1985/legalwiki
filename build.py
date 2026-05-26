@@ -30,6 +30,7 @@ except ImportError:
 # 路径配置
 # ──────────────────────────────────────────────────────
 WIKI_SRC_CANDIDATES = [
+    Path("/Users/cslawyer/Documents/知识库/wiki/concepts"),
     Path("/Users/CS/Documents/知识库/wiki/concepts"),
     Path("/Users/CS/Trae/知识库/wiki/concepts"),
 ]
