@@ -882,6 +882,65 @@ input:focus-visible {
   color: var(--ink-soft);
 }
 
+.page-home .wp-section.is-links {
+  border-color: #cfbea0;
+  background:
+    linear-gradient(135deg, rgba(139, 118, 80, 0.10), rgba(139, 118, 80, 0) 58%),
+    var(--content-bg);
+}
+
+.page-home .wp-section.is-links .friend-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.page-home .wp-section.is-links .friend-links li {
+  border-bottom: 1px solid #eee7da;
+}
+
+.page-home .wp-section.is-links .friend-links li:last-child {
+  border-bottom: none;
+}
+
+.page-home .wp-section.is-links .friend-links a {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 4px;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.page-home .wp-section.is-links .friend-links a:hover {
+  background: var(--accent-wash);
+  text-decoration: none;
+}
+
+.page-home .wp-section.is-links .fl-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--link);
+}
+
+.page-home .wp-section.is-links .fl-name::after {
+  content: " \2197";
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.page-home .wp-section.is-links .friend-links a:hover .fl-name {
+  color: var(--link-active);
+}
+
+.page-home .wp-section.is-links .fl-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
 .wp-section-header {
   background: var(--surface-muted);
   padding: 8px 12px;
