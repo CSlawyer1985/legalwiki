@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cslawyer1985.github.io/legalwiki/sitemap.xml

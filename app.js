@@ -91,6 +91,16 @@
       if (item.b && item.b.toLowerCase().indexOf(q) >= 0) {
         score += 2;
       }
+      // 语义摘要命中
+      if (item.desc && item.desc.toLowerCase().indexOf(q) >= 0) {
+        score += 10;
+      }
+      // 分层加权：T1 +15 / T2 +5
+      if (item.tier === 1) {
+        score += 15;
+      } else if (item.tier === 2) {
+        score += 5;
+      }
 
       if (score > 0) {
         results.push({ item: item, score: score });
@@ -116,12 +126,20 @@
     var html = '';
     for (var i = 0; i < results.length; i++) {
       var r = results[i].item;
+      var tierBadge = '';
+      if (r.tier === 1) {
+        tierBadge = '<span class="sr-tier" style="background:#15803d">T1</span>';
+      } else if (r.tier === 2) {
+        tierBadge = '<span class="sr-tier" style="background:#0369a1">T2</span>';
+      }
+      var descHtml = r.desc ? '<div class="sr-desc">' + escapeHtml(r.desc) + '</div>' : '';
       html += '<div class="search-result-item' +
               (i === activeIndex ? ' is-active' : '') +
               '" data-index="' + i + '" data-path="' + escapeHtml(r.p) +
               '" onclick="goToResult(\'' +
               r.p.replace(/'/g, "\\'") + '\')">' +
-              '<div class="sr-title">' + escapeHtml(r.t) + '</div>' +
+              '<div class="sr-title">' + escapeHtml(r.t) + tierBadge + '</div>' +
+              descHtml +
               '<div class="sr-domain">' + escapeHtml(r.d) + '</div>' +
               '</div>';
     }

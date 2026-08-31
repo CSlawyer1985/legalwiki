@@ -371,6 +371,25 @@ input:focus-visible {
   color: var(--text-secondary);
   margin-top: 2px;
 }
+.search-result-item .sr-tier {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  vertical-align: 1px;
+}
+.search-result-item .sr-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* ──────────────────────────────────────
    5. 面包屑导航
@@ -458,6 +477,113 @@ input:focus-visible {
 
 .meta-item { }
 
+/* 置信度徽章 / 复检小徽章（meta 区与锚点卡共用） */
+.conf-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+.conf-badge.conf-high { background: #15803d; }
+.conf-badge.conf-medium { background: #a16207; }
+.conf-badge.conf-low { background: #78716c; }
+.meta-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--surface-muted);
+  border: 1px solid var(--border-light);
+}
+
+/* 已被取代论断提示条 */
+.supersede-banner {
+  margin: 10px 0;
+  padding: 9px 14px;
+  background: #fdf3e3;
+  border: 1px solid #e8c98a;
+  border-left: 4px solid #b45309;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #7c4a03;
+}
+
+/* 锚点速览卡 */
+.anchor-card {
+  margin: 14px 0 18px;
+  padding: 12px 16px 14px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-light);
+  border-left: 3px solid var(--accent-rule);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.anchor-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+}
+.anchor-card-title {
+  font-weight: 700;
+  color: var(--accent-rule);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+.anchor-card-badges {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.anchor-card-badges .conf-badge,
+.anchor-card-badges .meta-chip {
+  padding: 1px 7px;
+  font-size: 11px;
+}
+.anchor-card-row {
+  display: flex;
+  gap: 10px;
+  padding: 3px 0;
+  line-height: 1.55;
+}
+.anchor-card-label {
+  flex: 0 0 auto;
+  min-width: 4.5em;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.anchor-card-value {
+  flex: 1 1 auto;
+  color: var(--text);
+}
+
+/* 证据时间线列表：行距紧凑 */
+.article-content ul.evidence-timeline {
+  margin: 6px 0 14px;
+  padding-left: 1.4em;
+  font-size: 13px;
+}
+.article-content ul.evidence-timeline li {
+  margin: 2px 0;
+  line-height: 1.55;
+}
+
+/* 知识库原始资料索引中的降级来源标题（原为超链接，现为纯文本） */
+.source-title {
+  display: inline;
+  color: var(--text-secondary);
+  font-size: 13px;
+  border-left: 3px solid var(--border-light);
+  padding-left: 6px;
+}
+
 .benchmark-quote {
   background: var(--law-quote-bg);
   border-left: 4px solid var(--law-quote-border);
@@ -511,9 +637,6 @@ input:focus-visible {
 }
 
 .article-toc {
-  float: right;
-  width: 220px;
-  margin: 0 0 16px 24px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0)),
     var(--surface-subtle);
@@ -522,8 +645,26 @@ input:focus-visible {
   padding: 12px 14px;
   font-size: 12px;
   flex-shrink: 0;
+}
+
+/* 文章页双栏布局：正文占主列，目录固定右侧栏（不再浮动，杜绝遮挡正文） */
+.page-article .main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 232px;
+  column-gap: 22px;
+}
+
+.page-article .main > * {
+  grid-column: 1;
+}
+
+.page-article .main > .article-toc {
+  grid-column: 2;
+  grid-row: 1 / span 30;
   position: sticky;
   top: 68px;
+  align-self: start;
+  margin: 0;
 }
 
 .article-toc h3 {
@@ -1280,9 +1421,12 @@ span.broken-wikilink {
     left: calc(50% - 0.5px);
   }
 
-  .page-article .article-toc {
-    width: 176px;
-    margin-left: 18px;
+  .page-article .main {
+    grid-template-columns: minmax(0, 1fr) 190px;
+    column-gap: 16px;
+  }
+
+  .page-article .main > .article-toc {
     padding: 10px 12px;
     top: 64px;
   }
@@ -1350,12 +1494,15 @@ span.broken-wikilink {
     padding-left: 28px;
   }
 
+  .page-article .main {
+    display: block;
+  }
+
   .article-toc {
     display: none;
   }
   .article-toc.mobile-active {
     display: block;
-    float: none;
     width: 100%;
     margin: 0 0 16px 0;
     position: static;
